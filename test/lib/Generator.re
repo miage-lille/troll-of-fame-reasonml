@@ -29,7 +29,11 @@ module Fantasy: MFantasy = {
       >|= (pair => from_pair(pair))
     );
 
-  let elf_print = elf => Elf.show(elf) |> QCheck.Print.string;
+  let elf_print = elf =>
+    Elf.show(elf)
+    ++ " = "
+    ++ (Elf.value(elf) |> string_of_int)
+    |> QCheck.Print.string;
   let elf_arbitrary = QCheck.make(~print=elf_print, elf_gen);
 
   let elf_high_arbitrary = QCheck.make(~print=elf_print, elf_high_gen);

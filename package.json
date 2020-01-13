@@ -8,7 +8,7 @@
     "NOTE": "Optional release Section. Customizes result of `esy release`",
     "release": {
       "bin": [
-        "Fame"
+        "TOF"
       ]
     },
     "buildEnv": {
@@ -16,8 +16,7 @@
     }
   },
   "scripts": {
-    "test": "esy x Fame",
-    "doc": "esy dune build @doc"
+    "test": "esy x Runner"
   },
   "dependencies": {
     "@esy-ocaml/reason": ">= 3.4.0 < 3.6.0",

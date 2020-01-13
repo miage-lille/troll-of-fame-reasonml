@@ -1,6 +1,6 @@
 (executable
-  (name Fame)
+  (name TOF)
   (libraries lib)
 
-  (public_name Fame))
+  (public_name TOF.exe))
   

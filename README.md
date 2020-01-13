@@ -1,164 +1,258 @@
-# Troll of Fame - ReasonML training
+# Troll of Fame - ReasonML
 
-This project use [ReasonML](https://reasonml.github.io) with [esy](https://esy.sh/) workflow and [Dune](https://github.com/ocaml/dune) build system.
+Ce projet utilise [ReasonML](https://reasonml.github.io) avec le workflow [esy](https://esy.sh/) et le build system [Dune](https://github.com/ocaml/dune).
+
+## Les modules
+
+ReasonML intègre un système de programmation modulaire. Les modules offrent un mécanisme d'encapsulation et permettent d'organiser le code en unités logiques, en fournissant des espaces de noms (namespaces) utiles lors de leur utilisation. ReasonML propose un système de modules récursifs et paramétrables très puissant qui permet de fournir une grande généricité au code.
+
+En ReasonML, tout le code est encapsulé dans des modules. Si nous plaçons l'ensemble du code du premier TP dans un fichier Game.re, cela définit automatiquement un module Game.
+
+_Le nom d'un module commence toujours par une majuscule, la convention veut que l'on nomme les fichiers ReasonML en commençant également par une majuscule mais ce n'est pas une obligation : le fichier game.re aurait également définit le module Game_
+
+#### Open Modules
+
+Imaginons que nous disposions du module et du sous-module
+
+```reason
+  module Fairy = {
+    module Animal = {
+      type t =
+      | Unicorn
+      | Dragon
+      | Manticor
+      | Mermaid;
+    }
+
+    let redDragon = Animal.Dragon;
+  }
+```
+
+Vous remarquerez le nommmage des types `t` : il s'agit d'une convention largement utilisée dans les écosystèmes ReasonML / OCaml, où le type nommé `t` désigne le type principal habitant le module. On utilise `Animal.t` plutôt que `Animal.animal` bien que ce ne soit pas une obligation.
+
+Pour accèder au contenu du module, il est possible de l'ouvrir. Plutôt que d'écrire :
+
+```reason
+  let defaultValue = Fairy.Animal.redDragon;
+```
+
+On peut écrire, pour y accèdes dans l'ensemble d'un fichier :
+
+```reason
+  open Fairy;
+  let defaultValue = Animal.redDragon;
+```
+
+Ou
+
+```reason
+  open Fairy.Animal;
+  let defaultValue = redDragon;
+```
+
+Le contenu du module est visible dans le scope. Ci dessus dans l'ensemble du fichier mais il est possible d'avoir un scope par expression :
+
+```reason
+  let defaultValue = Fairy.(Animal.redDragon);
+```
+
+ou de créer un scrope limité :
+
+```reason
+  {
+    open Fairy;
+    let defaultValue = Animal.redDragon;
+  }
+```
+
+Si vous voulez en savoir plus sur le système de module riche de ReasonML, lisez [ResonML : les modules](https://oteku.github.io/reasonml-modules/)
 
 ## Getting started
 
 - Install esy : `npm install -g esy`
-- Install dependencies : `esy`
-- Work with your IDE (VSCode - recommended, VIM, Emacs ) : `esy x [MY_IDE]` ie `esy x code .`
-- Run compiled executable : `esy x Fame`
-- Run tests : `esy x Runner`
+- Install dependencies : `esy install`
+- Build the app : `esy build`
+- Run compiled executable : `esy x TOF.exe` _(a sample troll of fame)_
+- Run tests : `esy test`
 
-Nota Bene : If you're using VS Code, you should install [OCaml and Reason IDE](https://marketplace.visualstudio.com/items?itemName=freebroccolo.reasonml) and enable the parameter _Reason › Codelens: Enabled_
+Nota Bene : Si vous utilisez VSCode, vous devriez installer le module [OCaml and Reason IDE](https://marketplace.visualstudio.com/items?itemName=freebroccolo.reasonml) et activer le paramètre de lentille _Reason › Codelens: Enabled_
+
+```
+troll-of-fame@0.0.0
+│
+├─test/lib/
+│   name:    Runner
+│   main:    Runner
+│   require: troll-of-fame
+│
+├─lib/
+│   library name: Lib
+│   namespace:    troll-of-fame
+│   require:
+│
+└─bin/
+    name:    TOF.exe
+    main:    TOF
+    require: troll-of-fame
+```
+
+## Quels fichiers devez vous modifier ?
+
+Tous les nouveaux tests de propriétés doivent être inclus, selon que vous testiez des elfes ou des trols, dans :
+
+- [Elf_prop.re](./test/lib/Elf_prop.re)
+- [Troll_prop.re](./test/lib/Troll_prop.re)
+
+Les tests unitaires existant peuvent vous servir d'une sorte de spécification... du moins vous pouvez l'espérer :
+
+- [Elf_test.re](./test/lib/Elf_test.re)
+- [Troll_test.re](./test/lib/Troll_test.re)
+
+Si vous découvriez des bugs, ils sont à corriger, selon le cas, dans :
+
+- [lib/Elf.re](./lib/Elf.re)
+- [lib/Troll.re](./lib/Troll.re)
 
 ## Once upon a time ⋯
 
-The King of the Trolls Gnonpom coded the **Troll of Fame** : a wonderfull application that would help Trolls to learn numbers when they are hunting.
-Gnonpom was a hard skilled Test Driven Developer king who just released **ToF** when all tests passed Green.
+Le roi des Trolls, Gnonpom, a codé le **Troll of Fame** : une application fabuleuse qui aide les Trolls à apprendre les nombres quand ils chassent. Gnonpom était un roi développeur, féru de test driven développement. il a mis en production **TOF** quand tous les tests étaient verts.
 
-Sadly he was shooted by a disgusting Elf.
+Malheureusement, il a été abattu par un horrible elfe.
 
-Here come a new King, Hurrah for the great Troll Aklass!
+Vive le nouveau roi, vive le troll aklass!
 
-This time it's decided, the elf hunting contest is launched!
+Cette fois c’est décidé le tournoi de chasse à l’elfe est lancé !
 
-At the end of each battle, the trolls want to compare the number and attributes of the slain elves. And with **ToF** it should be easy ⋯ Should.
+À la fin de chaque bataille, les trolls veulent comparer les nombres et attributs de ces elfes dégoutants.
+avec **TOF** ça devrait être facile ⋯ ça devrait.
 
 ## Excercices
 
 ### Work with legacy code
 
-You inherit an application that seems to work fine. Run `esy x Runner` (•̀ᴗ•́)و ̑̑
+Vous héritez d'une application qui semble fonctionner. Exécutez `esy test` (•̀ᴗ•́)و ̑̑
 
-Read [Elf_test.re](./test/lib/Elf_test.re) and [Troll_test.re](./test/lib/Troll_test.re) as a first specification of the software.
+Lisez [Elf_test.re](./test/lib/Elf_test.re) et [Troll_test.re](./test/lib/Troll_test.re) en tant que première spécification du logiciel.
 
-Now uncomment the content of [Elf_prop.re](./test/lib/Elf_prop.re) and run tests again `esy x Runner` ⋯ Ooops seems that our unit tests was not so complete. (╥﹏╥)
+Maintenant décommentez [Elf_prop.re](./test/lib/Elf_prop.re) et lancez à nouveau les tests `esy test` ⋯ Ooops il semble que les tests unitaires ne soient pas si exhuastifs. (╥﹏╥)
 
-We will try to improve the quality of _Troll of Frame_ thanks to Property Based Testing
+Nous allons améliorer la qualité de l'application _Troll of Frame_ grâce aux tests de propriétés (Property Based Testing)
 
 ### Property testing
 
-Property Based Testing (a.k.a. PBT) is about generating tests instead of manually writing them. Unlike unit tests where you know what goes in and what comes out (a.k.a. oracle tests), you assess properties that should always be true. The PBT library checks for arbitrary inputs that the property is true.
+Le _Property Based Testing_ (a.k.a PBT) consiste à générer des tests au lieu de les écrire manuellement. Contrairement aux tests unitaires où vous savez ce qui entre et ce qui sort, vous évaluez des propriétés qui devraient toujours être vraies. La bibliothèque PBT vérifie pour des entrées arbitraires que la propriété est vraie.
 
-In ReasonML, we use `qcheck-rely` library to write and run Property Based tests.
+En ReasonML, nous utiliserons la librairie `qcheck-rely` pour écrire et executer des PBT avec `rely` que nous avons utilisé dans le TP précédent.
 
 #### Step 1 - Configuration and Invariance
 
 ![invariant](./invariant.png)
-_No matter the year, the 31st of December is a New Year's Eve_
+_Quelle que soit l'année, le 31 Décembre est le réveillon du nouvel an_
 
-- For a simpler start, we already configured the build dependencies and created generators for `Elf` and `Troll` in the test lib.
-- PBT tests are located in [Elf_prop.re](./test/lib/Elf_prop.re) and [Troll_prop.re](./test/lib/Troll_prop.re)
+- Pour un démarrage plus simple, nous avons déjà configuré les dépendances et créé des générateurs d'`Elf` et de `Troll` dans la bibliothèque de test. Vous pouvez consulter `Generator.re` si vous êtes curieux, mais les générateurs ne font pas parti de ce TP.
+
+- les tests PBT sont dans [Elf_prop.re](./test/lib/Elf_prop.re) et [Troll_prop.re](./test/lib/Troll_prop.re)
+
+- Le premier test de propriété que nous allons écrire vise à évaluer la propriété d'**invariance** : cela signifie qu'une propriété doit toujours être vraie même si l'entrée varie (par exemple l'`Elf`)
+
+- Par exemple, peu importe l'`Elf`, sa valeur est toujours > 0...
 
 ```OCaml
 open Framework;
 open QCheckRely;
+open Generator.Fantasy;
 open Lib.Elf;
-
-/* Elf Generator */
-let elf_arbitratry =
-  QCheck.Gen.(
-    pair(
-      oneofl([Swordsman, Archer, Warlock, Priest]),
-      oneofl([HighElf, DarkElf]),
-    )
-    >|= (pair => from_pair(pair))
-  )
-  |> QCheck.make;
 
 let {describe} = extendDescribe(QCheckRely.Matchers.matchers);
 
 /* Porperties Based Tests */
 describe("Elf Invariance", ({test}) => {
-  test("Elf value should always be positive", ({expect}) => {
-    QCheck.Test.make(
-      ~count=1000,
-      ~name="elf value should always be positive",
-      elf_arbitratry,
-      elf =>
-      value(elf) > 0
-    )
-    |> expect.ext.qCheckTest;
-    ();
-  })
+  test("Elf value should always be positive", ({expect})
+    => {
+      QCheck.Test.make(
+        ~count=1000,
+        ~name="elf value should always be positive",
+        elf_arbitrary,
+        elf =>
+        value(elf) > 0
+      )
+      |> expect.ext.qCheckTest;
+      ();
+    })
 });
 ```
 
-- Did you notice the property test takes a `Elf.t` as input? That's where PBT shines! The library will run this test 1000 times, and each time will pass a random Elf to it. We no longer care about building input data!
+- Avez-vous remarqué que le test de propriété prend un `Elf.t` en entrée? C'est là que PBT brille! La bibliothèque exécutera ce test 1000 fois, et chaque fois lui passera un `Elf` au hasard. Nous ne nous soucions plus de créer des données d'entrée!
 
-- The first property test we will write aims to assess Invariance property: it means a property should always be true even if the input varies (e.g. the Elf)
+- Autre exemple, la valeur d'un haut elfe est toujours paire. C'est le test qui vous a fait découvrir un bug lorsque vous le décommentiez alors que nos tests unitaires étaient _PASS_!
 
-- As an example, no matter the elf, his value is always > 0.
+- Comme premier exercice, implémentez un test invariant pour un `Troll`. Peu importe le troll, son score est toujours >= 0 ("Troll score should always be >= 0").
 
-- Another exemple, an elf value is always the product of his role value and his race value. That's the test which made you discover a bug when you uncommented it while our unit tests were _PASS_!
+- À quoi ressemblerait la même vérification avec des tests unitaires habituels?
 
-- As first exercice, implement an invariant Test for a `Troll`. No matter the troll, his score is always >= 0 (i.e. is never negative).
-
-- What would the same check with regular unit tests look like?
-
-> 📌 Most unit tests can actually be converted to **Invariance properties**
+> 📌 La plupart des tests unitaire peuvent être convertis en **Invariance properties**
 
 #### Step 2 - Inverse
 
-Inverse properties check that it's possible to transform some input to an output and back to the original input, no matter the input. This is a useful property because it guarantees some functions don't lose information and/or are consistent.
+Les propriétés inverses vérifient qu'il est possible de transformer une entrée en sortie et de revenir à l'entrée d'origine, quelle que soit l'entrée. Il s'agit d'une propriété utile car elle garantit que certaines fonctions ne perdent pas d'informations et / ou sont cohérentes.
 
 ![inverse](./inverse.png)
 _`bar` and `foo` are inverse of each other_
 
-- For any `Troll` and any `Elf`, if the `Troll` kills the `Elf` and then realizes the elf survived, what should be the result?
-- Write an inverse property test to check that
+- Pour tout `Troll` et tout `Elf`, si le `Troll` tue l'`Elf` et réalise ensuite que l'elfe a survécu, quel devrait être le résultat?
 
-Testing it will ensure that `i_got_one` and `oops_he_survived` are consistent.
+- Rédiger un test de propriété inverse pour vérifier cela
+
+Le tester garantira que `i_got_one` et `oops_he_survived` sont cohérents.
 
 #### Step 3 - Analogy
 
-Analogous properties check that there are at least 2 different ways from any input to reach an output. This is a useful property because it guarantees some functions are consistent (can also be useful for refactors)
+Les propriétés analogues vérifient qu'il existe au moins 2 façons différentes à partir de n'importe quelle entrée pour atteindre une sortie. Ceci est une propriété utile car elle garantit que certaines fonctions sont cohérentes (peut également être utile pour les refactoring)
 
 ![analogy](./analogy1.png)
 _Adding any number to itself is the same as multiplying this number by 2_
 
-For any troll, any elf and any positive quantity of killed elves, what should be the difference between:
+Pour tout troll, tout elfe et toute quantité positive d'elfes tués, quelle devrait être la différence entre :
 
-- killing a single elf and repeating this operation quantity times
-- killing in a single strike quantity units of elf?
+- tuer un seul elfe et répéter cette opération plusieurs fois
+- tuer d'un seul coup autant d'unités d'elfes?
 
-Write an analogous property test to check that
+Écrivez un test de propriété analogue pour vérifier cela.
 
-This ensures that `i_got_one` and `i_got` are consistent.
+Cela garantit que `i_got_one` et `i_got` ont cohérents.
 
 ![analogy](./analogy2.png)
 _For refactors, copy the function to refactor, do your changes, then write an Analogy property test to check for any input that they return the same output, i.e. the refactor has no regression! Now you can delete the test and the legacy function, and rename the refactored function to the legacy name_
 
 #### Step 4 - Idempotence
 
-Idempotent properties check that running a function once or several times leads to exactly the same result, i.e. an idempotent function brings to a stable state from which this function becomes useless.
+Les propriétés idempotentes vérifient que l'exécution d'une fonction une ou plusieurs fois conduit exactement au même résultat, c'est-à-dire qu'une fonction idempotente amène à un état stable à partir duquel cette fonction devient inutile.
 
 ![idempotence](./idempotence1.png)
 _Once a list of numbers is sorted, sorting it again doesn't change anything_
 
-- For any `Troll` and any `Elf`, once all elves have been resurrected, what should happen if these elves are resurrected again?
-- Write an idempotent property test to check that
+- Pour tout `Troll` et tout `Elf`, une fois que tous les elfes ont été ressuscités, que devrait-il se passer si ces elfes ressuscitent à nouveau ?
+- Rédigez un test de propriété idempotente pour vérifier cela
 
 ![idempotence](./idempotence2.png)
 _More generally, `function` is idempotent if applying it to its own result doesn't change anything_
 
-This ensures that `all_elves_of_a_kind_resurrected` brings the `Troll` killing list to a stable state (i.e. many call should have the same result as once).
+Cela garantit que `all_elves_of_a_kind_resurrected` amène la liste de kills du `Troll` dans un état stable (c'est-à-dire que de nombreux appels devraient avoir le même résultat qu'une seule fois).
 
-#### [Bonus] Step 5 - Metamorphism
+#### Step 5 - Metamorphism
 
-Metamorphic properties check that running a function with variants of the same input should lead to equal or consistent outputs. E.g. if the input is multiplied by 2, is the output also multiplied by 2? Divided by 2? The same?
+Les propriétés métamorphiques vérifient que l'exécution d'une fonction avec des variantes de la même entrée doit conduire à des sorties égales ou cohérentes. Par exemple, si l'entrée est multipliée par 2, la sortie est-elle également multipliée par 2 ? Divisé par 2 ? La même ?
 
-- For any `Troll` and any elf, what should the `Troll` score be compared to the score of the `Troll` after killing elf?
-- Write a metamorphic property test to check that
+- Pour tout `Troll` et tout `Elf`, quel doit être le score du `Troll` par rapport au score du `Troll` après avoir tué un elfe ?
+- Rédiger un test de propriété métamorphique pour vérifier cela.
 
-This ensures that i_got_one correctly increases the kill list (and thus the score) when an elf is killed.
+Cela garantit que `i_got_one` augmente correctement la liste de kill (et donc le score) lorsqu'un `Elf` est tué.
 
-#### [Bonus] Step 6 - Injection
+#### Step 6 - Injection
 
-Injective properties check that different inputs lead to different outputs, i.e. there aren't 2 different inputs that lead to the same output, i.e. each output has at most 1 input.
+Les propriétés d'injection vérifient que différentes entrées mènent à des sorties différentes, c'est-à-dire qu'il n'y a pas 2 entrées différentes qui mènent à la même sortie, c'est-à-dire que chaque sortie a au plus 1 entrée.
 
-- For any `Troll` and any 2 elves elf1 and elf2, assuming elf1 is different from elf2, troll after killing elf1 must be different from `Troll` after killing elf2
-- Write an injective property test to check that
+- Pour tout `Troll` et 2 `Elf` _elf1_ et _elf2_, en supposant que _elf1_ est différent de _elf2_, le `Troll` après avoir tué _elf1_ doit être différent du `Troll` après avoir tué _elf2_
+- Rédiger un test de propriété injective pour vérifier cela.
 
-This ensures that iGotOne always updates the provided `Troll` in a unique way.
+Cela garantit que `i_got_one` met toujours à jour le `Troll` fourni d'une manière unique.
