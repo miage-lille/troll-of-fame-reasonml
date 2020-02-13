@@ -5,6 +5,15 @@ open Lib.Troll;
 
 let {describe} = extendDescribe(QCheckRely.Matchers.matchers);
 
+/*
+ * Assertions below assumed that 'same troll' means a trolls with the same score
+ * This is a valid assertion regarding the use of the app (compare scoring)
+ * If you want assert that same trolls means same record there is still a final bug to find :)
+ * There is to way to represent "no scoring for this kind of elf"
+ *   -> If you never killed a kind of elf there is no key for that elf in Troll.t.Killed map
+ *   -> If you killed an amount of a kind of elf and the same amount ressurect you will have a key for that elf in Troll.t.Killed map with a value of 0
+ */
+
 describe("Troll Invariance", ({test}) => {
   test("Troll score should be 0 when all elves resurrected", ({expect}) => {
     QCheck.Test.make(
@@ -55,7 +64,7 @@ describe("Troll Analogy", ({test}) => {
       ((troll, elf, qty)) =>
       i_got(qty, elf, troll)
       == (
-           List.init(qty, _ => 1)
+           List.init(qty, _ => 1)  // alternative to a for loop : fill a list of 1 and fold on it
            |> List.fold_left(
                 (cur_troll, _) => i_got_one(elf, cur_troll),
                 troll,
@@ -75,14 +84,21 @@ describe("Troll Idempotence", ({test}) => {
         ~count=1000,
         ~name=
           "all_elves_of_a_kind_resurrected brings the Troll killing list to a stable state",
-        troll_elf_arbitrary,
-        ((troll, elf)) =>
-        all_elves_of_a_kind_resurrected(elf, troll)
-        == (
-             all_elves_of_a_kind_resurrected(elf, troll)
-             |> all_elves_of_a_kind_resurrected(elf)
-             |> all_elves_of_a_kind_resurrected(elf)
-           )
+        troll_elf_int_arbitrary,
+        ((troll, elf, times)) =>
+        if (times > 0) {
+          all_elves_of_a_kind_resurrected(elf, troll)
+          == (
+               List.init(times, _ => 1)  // alternative to a for loop : fill a list of 1 and fold on it
+               |> List.fold_left(
+                    (cur_troll, _) =>
+                      all_elves_of_a_kind_resurrected(elf, cur_troll),
+                    troll,
+                  )
+             );
+        } else {
+          true; // idempotence don't means anything 0 times ... Stats on 1000 tests make this assertion good enough
+        }
       )
       |> expect.ext.qCheckTest;
       ();
